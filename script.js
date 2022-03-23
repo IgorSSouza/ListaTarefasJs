@@ -1,81 +1,69 @@
-const inputTarefa = document.querySelector('.input-tarefa');
-const btnTarefa = document.querySelector('.btn-tarefa');
-const tarefas = document.querySelector('.tarefas');
+function criaCalculadora(){
+    return{
+        display: document.querySelector('.display'),
 
-function criaLi(){
-    const li = document.createElement('li');
-    return li
-}
+        inicia(){
+            this.cliqueBotoes();
+            this.pressionarEnter();
+        },
 
-inputTarefa.addEventListener('keypress', function(e){
-    if(e.keyCode === 13){
-        if(!inputTarefa.value) return;
-        criaTarefa(inputTarefa.value);
-    }
-});
+        pressionarEnter(){
+            this.display.addEventListener('keyup', e =>{
+                if(e.keyCode === 13){
+                    this.realizarConta();
+                }
+            });
+        },
 
-function criaTarefa(textoInput){
-    const li = criaLi();
-    li.innerHTML = textoInput;
-    tarefas.appendChild(li);
-    limpaInput();
-    criarBotaoApagar(li);
-    salvarTarefas();
-}
+        clearDisplay(){
+            this.display.value = '';
+        },
 
-function criarBotaoApagar(li){
-    li.innerHTML += ' ';
-    const botaoApagar = document.createElement('button');
-    botaoApagar.innerText = 'Apagar';
-    botaoApagar.setAttribute('class','apagar');
-    li.appendChild(botaoApagar);
-    
-    
-}
+        apagarUm(){
+            this.display.value = this.display.value.slice(0, -1);
+        },
 
-btnTarefa.addEventListener('click', function(){
-    if(!inputTarefa.value) return;
+        realizarConta(){
+            let conta = this.display.value;
+            
+            try{
+                conta = eval(conta);
 
-    criaTarefa(inputTarefa.value);
-});
+                if(!conta){
+                    alert('Conta Inválida');
+                    return;
+                }
+                this.display.value = String(conta);
+            }catch(e){
+                alert('Conta Inválida');
+            }   
 
-document.addEventListener('click', function(e){
-    const el = e.target;
+        },
+        
+        cliqueBotoes(){
+            document.addEventListener('click', e => {
+                const el = e.target;
 
-    if(el.classList.contains('apagar'))
-    {
-        el.parentElement.remove();
-        salvarTarefas();
-    }
-});
+                if(el.classList.contains('btn-num')){
+                    this.btnParaDisplay(el.innerText);
+                }
+                if(el.classList.contains('btn-clear')){
+                    this.clearDisplay();
+                }
+                if(el.classList.contains('btn-del')){
+                    this.apagarUm();
+                }
+                if(el.classList.contains('btn-eq')){
+                    this.realizarConta();
+                }
+            });
+        },
 
-function limpaInput(){
-    inputTarefa.value = '';
-    inputTarefa.focus();
-}
-
-function salvarTarefas(){
-    const liTarefas = tarefas.querySelectorAll('li');
-    const listaDeTarefas = [];
-
-    for(let tarefa of liTarefas){
-        let tarefaTexto = tarefa.innerText;
-        tarefaTexto = tarefaTexto.replace('Apagar', '').trim();
-        listaDeTarefas.push(tarefaTexto);
-    }
-
-    const tarefasJSON = JSON.stringify(listaDeTarefas);
-    
-    localStorage.setItem('tarefas', tarefasJSON);
-}
-
-function adicionarTarefasSalvas(){
-    const tarefas = localStorage.getItem('tarefas');
-    const listaDeTarefas = JSON.parse(tarefas);
-
-    for(let tarefa of listaDeTarefas){
-        criaTarefa(tarefa);
+        btnParaDisplay(valor){
+            this.display.value += valor;
+        }
     }
 }
 
-adicionarTarefasSalvas();
+const calculadora = criaCalculadora();
+calculadora.inicia();
